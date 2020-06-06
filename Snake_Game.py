@@ -2,7 +2,11 @@ import pygame
 import time
 import random
 
+
+pygame.mixer.init()
+
 pygame.init()
+
 clock = pygame.time.Clock()
 
 col_orn = (255, 123, 7)
@@ -14,14 +18,28 @@ col_sky = (50, 153, 213)
 d_width = 700
 d_height = 700
 
+font_style = pygame.font.SysFont("comicsansms", 20)
+gameovr_font = pygame.font.SysFont("comicsansms", 40)
+score_font = pygame.font.SysFont("comicsansms", 40)
+
 display = pygame.display.set_mode((d_width, d_height))
 pygame.display.set_caption("The Snake Game using Pygame")
 display.fill(col_blk)
 
 
+
+bi = pygame.image.load("background.png").convert()
+#display.blit(bi, [0, 0])
+
+
 snake_size = 10
 snake_speed = 20
 snake_pos = []
+
+
+def Your_score(score):
+    value = score_font.render("Your Score: " + str(score), True, (0, 0, 0))
+    display.blit(value, [0, 0])
 
 
 
@@ -48,21 +66,36 @@ def snake_game():
     foodx = round(random.randrange(0, d_width - snake_size) / 10.0) * 10.0
     foody = round(random.randrange(0, d_height - snake_size) / 10.0) * 10.0
 
+    pygame.mixer.music.load("music.mp3")
+    pygame.mixer.music.play(loops=-1)
+
+    black=(0,0,0)
+    end_it=False
+    while (end_it==False):
+        display.fill(black)
+
+        nlabel=gameovr_font.render("Welcome to Start Screen", 1, (255, 0, 0))
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                end_it = True
+        display.blit(nlabel,[d_width / 20, d_height / 3])
+        pygame.display.flip()
+
+
     while not game_over:
+
         while game_end == True:
-            display.fill(col_sky)
-            font_style = pygame.font.SysFont("comicsansms", 20)
+            display.fill((255, 255, 0))
+
             msg = font_style.render("You Lost!! Wanna Play Again? Press Y to play again Or Press N to quit", True, col_red)
             display.blit(msg, [d_width / 20, d_height / 3])
 
-            gameovr_font = pygame.font.SysFont("comicsansms", 40)
+
             gameovr = gameovr_font.render("   Game Over :)", True, col_red)
             display.blit(gameovr, [d_width / 4, d_height / 6])
 
             score = length_of_snake - 1
-            score_font = pygame.font.SysFont("comicsansms", 40)
-            value = score_font.render("Score: " + str(score), True, col_grn)
-            display.blit(value, [d_width / 3, d_height / 4])
+            Your_score(score)
             pygame.display.update()
 
             for event in pygame.event.get():
@@ -102,7 +135,14 @@ def snake_game():
         x1 += x1_ch
         y1 += y1_ch
 
-        display.fill(col_blk)
+        #display.fill(col_blk)
+        x = 0
+        while x < d_width:
+            y = 0
+            while y < d_height:
+                display.blit(bi, (x, y))
+                y += 175
+            x += 175
         pygame.draw.rect(display, col_grn, [foodx, foody, snake_size, snake_size])
 
         snake_head = []
@@ -116,7 +156,9 @@ def snake_game():
         for x in snake_list[:-1]:
             if x == snake_head:
                 game_end = True
+
         snake(snake_size, snake_list)
+        Your_score(length_of_snake - 1)
 
         pygame.display.update()
 
